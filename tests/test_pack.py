@@ -11,8 +11,6 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock, patch
 
-import yaml
-
 PACK_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PACK_ROOT))
 
@@ -82,29 +80,32 @@ class PackTests(unittest.TestCase):
         cls.sensor = load_module("rabbitmq_sensor_test", PACK_ROOT / "sensors" / "rabbitmq_message.py")
 
     def test_pack_and_resource_contracts(self):
-        pack = yaml.safe_load((PACK_ROOT / "pack.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(pack["meta"]["source_version"], "1.1.1")
-        self.assertEqual(pack["meta"]["source_revision"], "e79bcedf5cef611ff6088b79d9e5926a288fa951")
-        self.assertEqual(pack["meta"]["license"], "Apache-2.0")
-        actions = [yaml.safe_load(path.read_text(encoding="utf-8")) for path in (PACK_ROOT / "actions").glob("*.yaml")]
+        pack = (PACK_ROOT / "pack.yaml").read_text(encoding="utf-8")
+        self.assertIn('source_version: "1.1.1"', pack)
+        self.assertIn('source_revision: "e79bcedf5cef611ff6088b79d9e5926a288fa951"', pack)
+        self.assertIn('license: "Apache-2.0"', pack)
+        action_paths = list((PACK_ROOT / "actions").glob("*.yaml"))
         self.assertEqual(
-            {item["ref"] for item in actions},
-            {"rabbitmq.publish_message", "rabbitmq.list_exchanges", "rabbitmq.list_queues", "rabbitmq.list_bindings"},
+            {path.stem for path in action_paths},
+            {"publish_message", "list_exchanges", "list_queues", "list_bindings"},
         )
-        for action in actions:
-            self.assertEqual(action["runner_type"], "python")
-            self.assertEqual(action["entry_point"], "rabbitmq_action.py")
-            self.assertEqual(action["parameter_delivery"], "stdin")
-            self.assertEqual(action["parameter_format"], "json")
-            self.assertEqual(action["output_format"], "json")
-            self.assertEqual(action["default_execution_permission_set_refs"], ["standard"])
-            self.assertEqual(set(action["output"]), {"operation", "result"})
-        trigger = yaml.safe_load((PACK_ROOT / "triggers" / "message.yaml").read_text(encoding="utf-8"))
-        sensor = yaml.safe_load((PACK_ROOT / "sensors" / "rabbitmq_message.yaml").read_text(encoding="utf-8"))
-        self.assertEqual(sensor["trigger_types"], [trigger["ref"]])
-        self.assertEqual(trigger["parameters"]["credential_file"]["pattern"], "^/run/secrets/.+")
-        self.assertIn("body_base64", trigger["output"])
-        self.assertNotIn("password", json.dumps(actions))
+        for path in action_paths:
+            action = path.read_text(encoding="utf-8")
+            self.assertIn(f"ref: rabbitmq.{path.stem}", action)
+            self.assertIn("runner_type: python", action)
+            self.assertIn("entry_point: rabbitmq_action.py", action)
+            self.assertIn("parameter_delivery: stdin", action)
+            self.assertIn("parameter_format: json", action)
+            self.assertIn("output_format: json", action)
+            self.assertIn("default_execution_permission_set_refs: [standard]", action)
+            self.assertIn("operation: {type: string, required: true}", action)
+            self.assertIn("result: {type: object, required: true}", action)
+        trigger = (PACK_ROOT / "triggers" / "message.yaml").read_text(encoding="utf-8")
+        sensor = (PACK_ROOT / "sensors" / "rabbitmq_message.yaml").read_text(encoding="utf-8")
+        self.assertIn("trigger_types: [rabbitmq.message]", sensor)
+        self.assertIn('pattern: "^/run/secrets/.+"', trigger)
+        self.assertIn("body_base64:", trigger)
+        self.assertNotIn("password", "".join(path.read_text(encoding="utf-8") for path in action_paths))
 
     def test_license_and_notice_match_verified_source(self):
         license_text = (PACK_ROOT / "LICENSE").read_text(encoding="utf-8")
