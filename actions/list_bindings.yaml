@@ -1,0 +1,22 @@
+ref: rabbitmq.list_bindings
+label: "List RabbitMQ Bindings"
+description: "Inspect virtual-host, exchange-source, queue-destination, or exchange-to-queue bindings"
+enabled: true
+runner_type: python
+runtime_version: ">=3.10"
+entry_point: rabbitmq_action.py
+parameter_delivery: stdin
+parameter_format: json
+output_format: json
+default_execution_permission_set_refs: [standard]
+parameters:
+  credential_key: {type: string, default: "rabbitmq.credentials"}
+  vhost: {type: string, default: "/", minLength: 1}
+  source_exchange: {type: string, description: "Optional exact source exchange"}
+  destination_queue: {type: string, description: "Optional exact destination queue"}
+  page_size: {type: integer, default: 100, minimum: 1, maximum: 500}
+  max_pages: {type: integer, default: 20, minimum: 1, maximum: 100}
+output:
+  operation: {type: string, required: true}
+  result: {type: object, required: true}
+tags: [rabbitmq, management-api, binding, inspection]

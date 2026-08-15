@@ -1,0 +1,33 @@
+ref: rabbitmq.message
+label: "RabbitMQ Message"
+description: "Emitted after a message is delivered from a configured RabbitMQ queue"
+enabled: true
+parameters:
+  credential_file: {type: string, required: true, pattern: "^/run/secrets/.+", description: "RabbitMQ credentials mounted below /run/secrets"}
+  queue: {type: string, required: true, minLength: 1}
+  prefetch_count: {type: integer, default: 1, minimum: 1, maximum: 1000}
+  max_retries: {type: integer, default: 3, minimum: 0, maximum: 100}
+  retry_delay_seconds: {type: number, default: 1, minimum: 0, maximum: 30}
+  max_body_bytes: {type: integer, default: 1048576, minimum: 1, maximum: 16777216}
+  deduplicate_message_ids: {type: boolean, default: true}
+  exclusive: {type: boolean, default: false}
+output:
+  queue: {type: string, required: true}
+  exchange: {type: string, required: true}
+  routing_key: {type: string, required: true}
+  consumer_tag: {type: string, required: true}
+  redelivered: {type: boolean, required: true}
+  retry_count: {type: integer, required: true}
+  body_base64: {type: string, required: true}
+  body_text: {type: string}
+  body_size: {type: integer, required: true}
+  headers: {type: object, required: true}
+  content_type: {type: string}
+  content_encoding: {type: string}
+  correlation_id: {type: string}
+  message_id: {type: string}
+  type: {type: string}
+  app_id: {type: string}
+  reply_to: {type: string}
+  timestamp: {type: integer}
+tags: [rabbitmq, amqp, message]

@@ -1,0 +1,12 @@
+ref: rabbitmq.rabbitmq_message
+label: "RabbitMQ Message Sensor"
+description: "Consumes AMQP messages with manual acknowledgement for each active rule"
+enabled: true
+runner_type: python
+runtime_version: ">=3.10"
+entry_point: rabbitmq_message.py
+trigger_types: [rabbitmq.message]
+poll_interval: 1
+log_retention_policy: versions
+log_retention_limit: 4
+tags: [rabbitmq, amqp, message, managed]

@@ -1,0 +1,9 @@
+This product includes an adaptation of StackStorm Exchange's stackstorm-rabbitmq
+pack version 1.1.1, copyright StackStorm, Inc., licensed under Apache-2.0.
+
+Source: https://github.com/StackStorm-Exchange/stackstorm-rabbitmq
+Commit: e79bcedf5cef611ff6088b79d9e5926a288fa951
+Release date: 2022-12-18
+
+The implementation and Attune component metadata have been substantially
+modified. RabbitMQ is a trademark of Broadcom Inc.; use is descriptive only.

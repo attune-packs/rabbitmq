@@ -1,0 +1,38 @@
+ref: rabbitmq
+label: "RabbitMQ"
+description: "RabbitMQ AMQP publishing and consumption with Management HTTP API inspection"
+version: "0.1.0"
+author: "Attune"
+email: "support@attune.systems"
+system: false
+enabled: true
+
+conf_schema: {}
+config: {}
+
+meta:
+  category: integration
+  documentation_url: "https://github.com/attune-packs/rabbitmq"
+  repository_url: "https://github.com/attune-packs/rabbitmq"
+  source_repository: "https://github.com/StackStorm-Exchange/stackstorm-rabbitmq"
+  source_version: "1.1.1"
+  source_revision: "e79bcedf5cef611ff6088b79d9e5926a288fa951"
+  license: "Apache-2.0"
+
+tags: [rabbitmq, amqp, messaging, integration]
+runtime_deps: [python]
+dependencies: []
+
+testing:
+  enabled: true
+  discovery:
+    method: directory
+    path: tests
+  runners:
+    python:
+      type: unittest
+      entry_point: tests/test_pack.py
+      timeout: 120
+      result_format: simple
+  min_pass_rate: 1.0
+  on_failure: block

@@ -1,0 +1,32 @@
+ref: rabbitmq.publish_message
+label: "Publish RabbitMQ Message"
+description: "Publish one AMQP 0-9-1 message with a broker confirmation"
+enabled: true
+runner_type: python
+runtime_version: ">=3.10"
+entry_point: rabbitmq_action.py
+parameter_delivery: stdin
+parameter_format: json
+output_format: json
+default_execution_permission_set_refs: [standard]
+parameters:
+  credential_key: {type: string, default: "rabbitmq.credentials"}
+  exchange: {type: string, default: "", description: "Exchange name; empty selects the default exchange"}
+  routing_key: {type: string, default: ""}
+  message: {type: string, required: true}
+  payload_encoding: {type: string, enum: [utf-8, base64], default: utf-8}
+  persistent: {type: boolean, default: true, description: "Set AMQP delivery mode 2"}
+  mandatory: {type: boolean, default: true, description: "Fail when the message cannot be routed"}
+  headers: {type: object, default: {}}
+  content_type: {type: string}
+  content_encoding: {type: string}
+  correlation_id: {type: string}
+  message_id: {type: string}
+  type: {type: string}
+  app_id: {type: string}
+  reply_to: {type: string}
+  expiration: {type: string, description: "Per-message TTL in milliseconds, encoded as an AMQP string"}
+output:
+  operation: {type: string, required: true}
+  result: {type: object, required: true}
+tags: [rabbitmq, amqp, publish]
